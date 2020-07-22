@@ -150,7 +150,7 @@ public class Embedding {
 
         String imageString = null;
 
-        File outputMosaicFilter=new File("src/main/java/com/fypembeddingapplication/embeddingapplication/EmbeddingAlgorithm/testOut.png");
+        File outputMosaicFilter=new File("src/main/java/com/fypembeddingapplication/embeddingapplication/EmbeddingAlgorithm/input7Out.png");
         try{
             ImageIO.write(bimage,"png",outputMosaicFilter);
         }

@@ -16,8 +16,8 @@ public class ImageCompress {
 
 
     public String compress(String originalBase64){
-        int tThumbWidth = 800;
-        int tThumbHeight =600;
+        int tThumbWidth = 0;
+        int tThumbHeight =0;
         byte[] decodedBytes= Base64.getDecoder().decode(originalBase64);
         Image image=null;
         try{
@@ -28,6 +28,14 @@ public class ImageCompress {
         catch (IOException e){
 //            throw new IllegalStateException(e.getMessage());
             e.printStackTrace();
+        }
+        if(((BufferedImage) image).getWidth()>1000||((BufferedImage) image).getHeight()>1500){
+            tThumbHeight = ((BufferedImage) image).getHeight() /2;
+            tThumbWidth = ((BufferedImage) image).getWidth()/2;
+        }
+        else{
+            tThumbHeight=((BufferedImage) image).getHeight();
+            tThumbWidth= ((BufferedImage) image).getWidth();
         }
         BufferedImage tThumbImage = new BufferedImage( tThumbWidth, tThumbHeight, BufferedImage.TYPE_INT_RGB );
         Graphics2D tGraphics2D = tThumbImage.createGraphics(); //create a graphics object to paint to

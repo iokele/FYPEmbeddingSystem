@@ -28,6 +28,9 @@ public class originalImage implements Serializable {
         this.imageCompressedBase64 =imageCompressedBase64;
     }
 
+    public originalImage() {
+    }
+
     public Long getUserId() {
         return userId;
     }

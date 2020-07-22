@@ -29,7 +29,7 @@ public class MosaicFilter {
     protected float m11 = 1.0f;
     protected Point[] results;
     protected float randomness = 0.5f;
-    protected int gridType = TRIANGULAR;
+    protected int gridType = RANDOM;
     private static byte[] probabilities;
     private float gradientCoefficient;
 
