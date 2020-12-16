@@ -4,7 +4,16 @@ public class requestForExtraction {
     private String embeddedImage;
     private Long originalImageId;
     private Long userId;
+    private String filter;
     public requestForExtraction() {
+    }
+
+    public String getFilter() {
+        return filter;
+    }
+
+    public void setFilter(String filter) {
+        this.filter = filter;
     }
 
     public String getEmbeddedImage() {

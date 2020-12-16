@@ -22,14 +22,12 @@ public class tempTable {
     private String embeddedImage1Base64;
     @Column(name = "embedded_image_compressed_base64",columnDefinition="LONGTEXT")
     private String embeddedImageCompressedBase64;
-    @Column(name = "embedded_key")
-    private String embeddedKey;
     @Column(name = "encryption_key")
     private String encryptionKey;
     @Column(name = "encrypted_string")
     private String encryptedString;
 
-    public tempTable(Long userId, String originalImageName, String originalImageBase64, String originalImageCompressedBase64, String embeddedImageName, String filter, String embeddedImage1Base64, String embeddedImageCompressedBase64, String embeddedKey, String encryptionKey, String encryptedString) {
+    public tempTable(Long userId, String originalImageName, String originalImageBase64, String originalImageCompressedBase64, String embeddedImageName, String filter, String embeddedImage1Base64, String embeddedImageCompressedBase64,String encryptionKey, String encryptedString) {
         this.userId = userId;
         this.originalImageName = originalImageName;
         this.originalImageBase64 = originalImageBase64;
@@ -38,7 +36,6 @@ public class tempTable {
         this.filter = filter;
         this.embeddedImage1Base64 = embeddedImage1Base64;
         this.embeddedImageCompressedBase64 = embeddedImageCompressedBase64;
-        this.embeddedKey = embeddedKey;
         this.encryptionKey = encryptionKey;
         this.encryptedString = encryptedString;
     }
@@ -109,14 +106,6 @@ public class tempTable {
 
     public void setEmbeddedImageCompressedBase64(String embeddedImageCompressedBase64) {
         this.embeddedImageCompressedBase64 = embeddedImageCompressedBase64;
-    }
-
-    public String getEmbeddedKey() {
-        return embeddedKey;
-    }
-
-    public void setEmbeddedKey(String embeddedKey) {
-        this.embeddedKey = embeddedKey;
     }
 
     public String getEncryptionKey() {

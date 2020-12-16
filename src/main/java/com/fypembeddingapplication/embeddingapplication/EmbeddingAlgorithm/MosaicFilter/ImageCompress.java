@@ -6,15 +6,31 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Base64;
 
 public class ImageCompress {
+    private ArrayList<String> errorMessage =new ArrayList<>();
+    private ArrayList<String > exceptionMessage =new ArrayList<>();
 
-    public ImageCompress() {
-
+    public ArrayList<String> getErrorMessage() {
+        return errorMessage;
     }
 
+    public void setErrorMessage(ArrayList<String> errorMessage) {
+        this.errorMessage = errorMessage;
+    }
 
+    public ArrayList<String> getExceptionMessage() {
+        return exceptionMessage;
+    }
+
+    public void setExceptionMessage(ArrayList<String> exceptionMessage) {
+        this.exceptionMessage = exceptionMessage;
+    }
+
+    public ImageCompress() {
+    }
     public String compress(String originalBase64){
         int tThumbWidth = 0;
         int tThumbHeight =0;
@@ -26,16 +42,13 @@ public class ImageCompress {
             inputStream.close();
         }
         catch (IOException e){
-//            throw new IllegalStateException(e.getMessage());
-            e.printStackTrace();
+            exceptionMessage.add(e.getMessage());
         }
-        if(((BufferedImage) image).getWidth()>1000||((BufferedImage) image).getHeight()>1500){
-            tThumbHeight = ((BufferedImage) image).getHeight() /2;
-            tThumbWidth = ((BufferedImage) image).getWidth()/2;
-        }
-        else{
-            tThumbHeight=((BufferedImage) image).getHeight();
-            tThumbWidth= ((BufferedImage) image).getWidth();
+        tThumbHeight =((BufferedImage) image).getHeight();
+        tThumbWidth= ((BufferedImage) image).getWidth();
+        while (tThumbHeight>1000||tThumbWidth>1500){
+            tThumbHeight = tThumbHeight/2;
+            tThumbWidth = tThumbWidth/2;
         }
         BufferedImage tThumbImage = new BufferedImage( tThumbWidth, tThumbHeight, BufferedImage.TYPE_INT_RGB );
         Graphics2D tGraphics2D = tThumbImage.createGraphics(); //create a graphics object to paint to
@@ -52,9 +65,8 @@ public class ImageCompress {
             imageString = new String (Base64.getEncoder().encode(imageBytes) ,"UTF-8") ;
             bos.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            exceptionMessage.add(e.getMessage());
         }
-//        ImageIO.write( tThumbImage, "JPG", tThumbnailTarget ); //write the image to a file
         return imageString;
     }
 }

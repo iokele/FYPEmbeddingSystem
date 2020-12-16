@@ -11,8 +11,8 @@ import javax.crypto.spec.SecretKeySpec;
 public class ASEEncryption {
     private SecretKeySpec secretKey;
     private byte[] encryptKeyByte;
-    private ArrayList<String> errorMessage;
-
+    private ArrayList<String> errorMessage = new ArrayList<>();
+    private ArrayList<String> exceptionMessage = new ArrayList<>();
     public ASEEncryption() {
     }
 
@@ -26,10 +26,10 @@ public class ASEEncryption {
             secretKey = new SecretKeySpec(encryptKeyByte, "AES");
         }
         catch (NoSuchAlgorithmException e) {
-            errorMessage.add(e.getMessage());
+            exceptionMessage.add(e.getMessage());
         }
         catch (UnsupportedEncodingException e) {
-            errorMessage.add(e.getMessage());
+            exceptionMessage.add(e.getMessage());
         }
     }
     public String encrypt(String strToEncrypt, String encryptKey)
@@ -43,7 +43,7 @@ public class ASEEncryption {
         }
         catch (Exception e)
         {
-            errorMessage.add("Error while encrypting: " + e.toString());
+            exceptionMessage.add(e.getMessage());
         }
         return null;
     }
@@ -58,7 +58,7 @@ public class ASEEncryption {
         }
         catch (Exception e)
         {
-            errorMessage.add("Error while decrypting: " + e.toString());
+            exceptionMessage.add(e.getMessage());
         }
         return null;
     }
@@ -70,16 +70,22 @@ public class ASEEncryption {
         this.errorMessage = errorMessage;
     }
 
+    public ArrayList<String> getExceptionMessage() {
+        return exceptionMessage;
+    }
+
+    public void setExceptionMessage(ArrayList<String> exceptionMessage) {
+        this.exceptionMessage = exceptionMessage;
+    }
+
     public String getRandomEncryptKey (){
         String AlphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "0123456789" + "abcdefghijklmnopqrstuvxyz";
         int n = 8;
         StringBuilder sb = new StringBuilder(n);
-
         for (int i = 0; i < n; i++) {
             int index = (int)(AlphaNumericString.length() * Math.random());
             sb.append(AlphaNumericString.charAt(index));
         }
-
         return sb.toString();
     }
 }

@@ -14,21 +14,41 @@ public class embeddedDetails implements Serializable {
     private Long embeddedDetailId;
     @Column(name = "user_Id")
     private Long userId;
-    @Column(name = "embedded_key")
-    private String embeddedKey;
+//    @Column(name = "embedded_key")
+//    private String embeddedKey;
     @Column(name = "original_images_id")
     private Long originalImagesID;
     @Column(name = "embedded_images_id")
     private Long embededImagesID;
+    @Column(name = "filter")
+    private String filter;
+
     public embeddedDetails(){
         super();
     }
-    public embeddedDetails(Long userId,String embededKey, Long originalImagesID, Long embededImagesID) {
+    public embeddedDetails(Long userId, Long originalImagesID, Long embededImagesID,String filter) {
         super();
         this.userId = userId;
-        this.embeddedKey = embededKey;
         this.originalImagesID = originalImagesID;
         this.embededImagesID = embededImagesID;
+        this.filter = filter;
+    }
+
+    public Long getEmbeddedDetailId() {
+        return embeddedDetailId;
+    }
+
+    public void setEmbeddedDetailId(Long embeddedDetailId) {
+        this.embeddedDetailId = embeddedDetailId;
+    }
+
+
+    public String getFilter() {
+        return filter;
+    }
+
+    public void setFilter(String filter) {
+        this.filter = filter;
     }
 
     public Long getEmbededDetailId() {
@@ -45,14 +65,6 @@ public class embeddedDetails implements Serializable {
 
     public void setEmbededDetailId(Long embededDetailId) {
         this.embeddedDetailId = embededDetailId;
-    }
-
-    public String getEmbededKey() {
-        return embeddedKey;
-    }
-
-    public void setEmbededKey(String embededKey) {
-        this.embeddedKey = embededKey;
     }
 
     public Long getOriginalImagesID() {

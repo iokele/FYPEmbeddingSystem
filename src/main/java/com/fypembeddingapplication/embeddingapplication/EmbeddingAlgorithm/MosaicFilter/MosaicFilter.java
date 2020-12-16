@@ -269,8 +269,6 @@ public class MosaicFilter {
         int[] outPixels = new int[width * height];
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-
-
                 if(x > (width/4) && x < (width/4*3) && y>(height/4) && y< (height*3/4) &&embeddedList.size()>0){
                     outPixels[index] = getPixel(x, y, inPixels, width, height,index,true);
                 }

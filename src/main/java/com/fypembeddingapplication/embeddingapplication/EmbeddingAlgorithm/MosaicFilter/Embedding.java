@@ -20,7 +20,24 @@ public class Embedding {
     private String embeddedKey;
     private String OutEmbeddedImageBase64;
     private String OutNonEmbeddedImageBase64;
-    private String Error;
+    private ArrayList<String> errorMessage =new ArrayList<>();
+    private ArrayList<String > exceptionMessage =new ArrayList<>();
+
+    public void setErrorMessage(ArrayList<String> errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
+    public ArrayList<String> getExceptionMessage() {
+        return exceptionMessage;
+    }
+
+    public void setExceptionMessage(ArrayList<String> exceptionMessage) {
+        this.exceptionMessage = exceptionMessage;
+    }
+
+    public ArrayList<String> getErrorMessage() {
+        return errorMessage;
+    }
 
     public Embedding(String embeddedInformation, String URLImageBase64) {
         this.embeddedInformation = embeddedInformation;
@@ -29,6 +46,12 @@ public class Embedding {
     public String getEmbededImage(){
         StringBuilder stringBuilder =new StringBuilder();
         ArrayList<Integer> embeddedKey=generateEmbeddedKey(embeddedInformation);
+        if (embeddedKey.isEmpty()){
+            errorMessage.add("Error code 103. Fail to apply Fragment Filter watermark to your image");
+        }
+        if (embeddedKey.size()>128){
+            errorMessage.add("Error code 104. Your watermark information is too long");
+        }
         for(int i =0; i<embeddedKey.size();i++){
             if(i<embeddedKey.size()-1){
                 stringBuilder.append(embeddedKey.get(i));
@@ -43,21 +66,19 @@ public class Embedding {
         filterInput input = converBase64ToPixels(URLImageBase64);
         MosaicFilter mosaicFilter=new MosaicFilter(getEmbeddedList(embeddedInformation,embeddedKey));
         int pixelsMosaicFilter[]= mosaicFilter.filter(input.getInPixles(),input.getWidth(),input.getHeight());
-        String outEmbeddedImageBase64="";
+        String outEmbeddedImageBase64=null;
         if(pixelsMosaicFilter.length==0){
-            this.setErrorMessage("Fail to apply mosaicFilter");
+            errorMessage.add("Error code 103. Fail to apply Fragment Filter watermark to your image");
         }
         else {
             outEmbeddedImageBase64=converPixelsToBase64(pixelsMosaicFilter,input.getHeight(),input.getWidth());
             this.setOutEmbeddedImageBase64(outEmbeddedImageBase64);
-            if(outEmbeddedImageBase64.equals(null)){
-                this.setErrorMessage("Fail to embed the image");
+            if(outEmbeddedImageBase64==null){
+                errorMessage.add("Error code 103. Fail to apply Fragment Filter watermark to your image");
             }
         }
+        System.out.println("done");
         return outEmbeddedImageBase64;
-    }
-    public String getErrorMessage(){
-        return this.Error;
     }
 
     public String getURLImageBase64() {
@@ -87,28 +108,11 @@ public class Embedding {
         this.OutEmbeddedImageBase64 = outEmbeddedImageBase64;
     }
 
-    public String getOutNonEmbeddedImageBase64() {
-        return OutNonEmbeddedImageBase64;
-    }
-
-    public void setOutNonEmbeddedImageBase64(String outNonEmbeddedImageBase64) {
-        this.OutNonEmbeddedImageBase64 = outNonEmbeddedImageBase64;
-    }
-
     public void setURLImageBase64(String URLImageBase64) {
         this.URLImageBase64 = URLImageBase64;
     }
 
-    public void setErrorMessage(String message){
-        StringBuilder stringBuilder =new StringBuilder();
-        String existingMessage =this.Error;
-        stringBuilder.append(existingMessage);
-        stringBuilder.append("; ");
-        stringBuilder.append(message);
-        this.Error=stringBuilder.toString();
-    }
-
-    public static filterInput converBase64ToPixels (String URLImageBase64){
+    public filterInput converBase64ToPixels (String URLImageBase64){
 //        String imageBase64 =URLImageBase64.substring(URLImageBase64.lastIndexOf(",")+1);
 
         byte[] decodedBytes= Base64.getDecoder().decode(URLImageBase64);
@@ -120,27 +124,20 @@ public class Embedding {
         }
         catch (IOException e){
 //            throw new IllegalStateException(e.getMessage());
-            e.printStackTrace();
+            exceptionMessage.add(e.getMessage());
         }
+        filterInput filterInput =null;
         if(image!=null){
             BufferedImage ARGBimage = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_RGB);
             Graphics2D bGr = ARGBimage.createGraphics();
             bGr.drawImage(image, 0, 0, null);
             bGr.dispose();
-//            File outputMosaicFilter=new File("src/main/java/com/fypembeddingapplication/embeddingapplication/EmbeddingAlgorithm/test.png");
-//            try{
-//                ImageIO.write(ARGBimage,"png",outputMosaicFilter);
-//            }
-//            catch (IOException e){e.printStackTrace();}
-            filterInput filterInput=new filterInput(convertToPixels(ARGBimage),ARGBimage.getHeight(),ARGBimage.getWidth());
-            return filterInput;
+            filterInput=new filterInput(convertToPixels(ARGBimage),ARGBimage.getHeight(),ARGBimage.getWidth());
         }
-        else {
-            return null;
-        }
+       return filterInput;
 
     }
-    public static String converPixelsToBase64(int[] outputPixles, int height, int width){
+    public String converPixelsToBase64(int[] outputPixles, int height, int width){
         MemoryImageSource ims = new MemoryImageSource(width,height, outputPixles, 0, width);
         Image image = Toolkit.getDefaultToolkit().createImage(ims);
         BufferedImage bimage = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
@@ -150,11 +147,11 @@ public class Embedding {
 
         String imageString = null;
 
-        File outputMosaicFilter=new File("src/main/java/com/fypembeddingapplication/embeddingapplication/EmbeddingAlgorithm/input7Out.png");
+        File outputMosaicFilter=new File("src/main/java/com/fypembeddingapplication/embeddingapplication/EmbeddingAlgorithm/input7MosicOut.png");
         try{
             ImageIO.write(bimage,"png",outputMosaicFilter);
         }
-        catch (IOException e){e.printStackTrace();}
+        catch (IOException e){exceptionMessage.add(e.getMessage());}
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
             ImageIO.write(bimage, "png", bos);
@@ -162,12 +159,12 @@ public class Embedding {
             imageString = new String (Base64.getEncoder().encode(imageBytes) ,"UTF-8") ;
             bos.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            exceptionMessage.add(e.getMessage());
         }
         return imageString;
     }
 
-    public static int[] convertToPixels(Image img) {
+    public int[] convertToPixels(Image img) {
         int width = img.getWidth(null);
         int height = img.getHeight(null);
         int[] pixels = new int[width * height];
@@ -175,6 +172,7 @@ public class Embedding {
         try {
             pg.grabPixels();
         } catch (InterruptedException e) {
+            exceptionMessage.add(e.getMessage());
             throw new IllegalStateException(e.getMessage());
         }
         if ((pg.getStatus() & ImageObserver.ABORT) != 0) {
@@ -187,8 +185,9 @@ public class Embedding {
         char [] stringArray=embededInformation.toCharArray();
 
         ArrayList <Integer> embeddedKey=new ArrayList<>();
+
         while (embeddedKey.size()<stringArray.length){
-            int key=random.nextInt(25)+1;
+            int key=random.nextInt(stringArray.length)+1;
             if(!embeddedKey.contains(255-key)){
                 embeddedKey.add(255-key);
             }

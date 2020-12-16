@@ -10,4 +10,5 @@ public interface EmbeddedImageRepository extends JpaRepository<embeddedImage,Lon
 //    Optional<embeddedImage> findByUser_IdAndEmbedded_image_Id(Long user_id,Long embedded_image_id );
     Optional <embeddedImage> findByEmbeddedImageId(Long embeddedImageId);
     Optional<embeddedImage> findByName(String name);
+
 }
