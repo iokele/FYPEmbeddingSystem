@@ -2,7 +2,7 @@ package com.fypembeddingapplication.embeddingapplication.model;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.UUID;
+import java.util.Random;
 
 @Entity
 
@@ -23,7 +23,7 @@ public class ConfirmationToken {
    public ConfirmationToken(User user){
         this.user =user;
         this.createdDate =LocalDate.now();
-        this.confirmatinToken = UUID.randomUUID().toString();
+        this.confirmatinToken = generateToken();
     }
 
     public Long getId() {
@@ -56,5 +56,14 @@ public class ConfirmationToken {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String generateToken(){
+        Random random = new Random();
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i =0 ;i <6;i++){
+            stringBuilder.append(random.nextInt(10));
+        }
+        return stringBuilder.toString();
     }
 }

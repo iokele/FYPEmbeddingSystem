@@ -50,60 +50,6 @@ public class uploadImageForEmbedded {
     EncryptionDetailsRepository encryptionDetailsRepository;
     @Autowired
     TempRepository tempRepository;
-//    @PostMapping("/getEmbeddedImage")
-//    @ResponseBody
-//    public Map<String, Object> getEmbeddedImage(@RequestBody String allParams) {
-//        ObjectMapper mapper = new ObjectMapper();
-////        System.out.println(allParams.get("userId"));
-//        ArrayList<String> errorMessage = new ArrayList<>();
-//        String jsonString=allParams;
-//        JsonCustomized<String,String> jsonPayload= new JsonCustomized<>();
-//        JsonCustomized<String,Object> jsonOutPut =new JsonCustomized<>();
-//        try{
-//            requestForEmbeddedImageID request = mapper.readValue(jsonString, requestForEmbeddedImageID.class);
-//            Long userId = request.getUserId();
-//            String imageBase64 =request.getImageBase64();
-//            String filter = request.getFilter();
-//            Timestamp timestamp=new Timestamp(System.currentTimeMillis());
-//            String imageName= request.getName() +"_" +timestamp.toString();
-//            ImageCompress compress = new ImageCompress();
-//            String imageCompressBase64 = compress.compress(imageBase64);
-//            originalImage originalImage =new originalImage(userId,imageName,imageBase64,imageCompressBase64);
-//            originalImageRepository.save(originalImage);
-//            final Optional<User> retrievedUserByUserID = userRepository.findById(userId);
-//            String embeddedInformation= retrievedUserByUserID.get().getDefault_digital_watermark();
-//            ASEEncryption encryption = new ASEEncryption();
-//            String encryptKey = encryption.getRandomEncryptKey();
-//            String encryptedInformation = encryption.encrypt(embeddedInformation,encryptKey);
-//            encryptionDetail encryptionDetail =new encryptionDetail(userId,encryptKey,encryptedInformation);
-//            encryptionDetailsRepository.save(encryptionDetail);
-//            Embedding embedding =new Embedding(encryptedInformation,imageBase64);
-//            String imageOutPut = embedding.getEmbededImage();
-//            String imageCompressedOut =compress.compress(imageOutPut);
-//            String embeddedKey = embedding.getEmbeddedKey();
-//            if(embedding.getErrorMessage()!=null){
-//                errorMessage.add(embedding.getErrorMessage());
-//            }
-//            String embeddedImageName = request.getName() + "_" + filter+ "_embedded" + timestamp.toString() ;
-//            embeddedImage embeddedImage =new embeddedImage(userId,embeddedImageName,filter,imageOutPut,imageCompressedOut);
-//            embeddedImageRepository.save(embeddedImage);
-//            final Optional<embeddedImage> retrievedEmbeddedImageByName = embeddedImageRepository.findByName(embeddedImageName);
-//            Long embeddedImageId = retrievedEmbeddedImageByName.get().getEmbeddedImageId();
-//            final Optional<originalImage> retrievedOriginalImageByName = originalImageRepository.findByName(imageName);
-//            Long originalImageId = retrievedOriginalImageByName.get().getOriginalImageId();
-//            embeddedDetails embeddedDetails = new embeddedDetails(userId,embeddedKey,originalImageId,embeddedImageId);
-//            embeddedDetailsRepository.save(embeddedDetails);
-//            jsonPayload.put("embeddedImageId",embeddedImageId.toString());
-//        }
-//        catch (JsonParseException e) { e.printStackTrace();errorMessage.add(e.getMessage());}
-//        catch (JsonMappingException e) { e.printStackTrace(); errorMessage.add(e.getMessage());}
-//        catch (IOException e) { e.printStackTrace(); errorMessage.add(e.getMessage());}
-//        jsonOutPut.put("payload",jsonPayload.returmMap());
-//        jsonOutPut.put("error",errorMessage);
-//        return jsonOutPut.returmMap();
-//
-//    }
-
 
 
     @GetMapping ("/test/{userId}")
@@ -122,7 +68,6 @@ public class uploadImageForEmbedded {
         String jsonString=allParams;
         ArrayList<String> errorMessage = new ArrayList<>();
         ArrayList<String> exceptionMessage = new ArrayList<>();
-        JsonCustomized<String,String> jsonPayload= new JsonCustomized<>();
         JsonCustomized<String,Object> jsonOutPut =new JsonCustomized<>();
         try{
             requestForEmbeddedImageID request = mapper.readValue(jsonString, requestForEmbeddedImageID.class);
@@ -143,6 +88,7 @@ public class uploadImageForEmbedded {
             final Optional<User> retrievedUserByUserID = userRepository.findById(userId);
             String embeddedInformation=null;
             if (retrievedUserByUserID.isEmpty()){
+                jsonOutPut.put("status","f");
                 errorMessage.add("Error Code 101. Error occur in Database");
             }
             else {
@@ -152,12 +98,14 @@ public class uploadImageForEmbedded {
             String encryptKey = encryption.getRandomEncryptKey();
             String encryptedInformation = encryption.encrypt(embeddedInformation,encryptKey);
             if(encryption.getErrorMessage().size()>0){
+                jsonOutPut.put("status","f");
                 errorMessage.addAll(encryption.getErrorMessage());
             }
             if (encryption.getExceptionMessage().size()>0){
                 exceptionMessage.addAll(encryption.getExceptionMessage());
             }
             if (encryptedInformation==null){
+                jsonOutPut.put("status","f");
                 errorMessage.add("Error Code 102. Fail to encrypt your information. You may consider to change your watermark info");
             }
             String imageCompressedOut=null;
@@ -168,18 +116,23 @@ public class uploadImageForEmbedded {
                 imageOutPut = mosicEmbed.embedding();
                 imageCompressedOut=compress.compress(imageOutPut);
                 if (imageCompressedOut==null&&imageOutPut!=null){
+                    jsonOutPut.put("status","f");
                     errorMessage.add("Error Code 105. Fail to generator a review image");
                 }
                 if(mosicEmbed.getExceptionMessage().size()>0){
+                    jsonOutPut.put("status","f");
                     exceptionMessage.addAll(mosicEmbed.getExceptionMessage());
                 }
                 if (mosicEmbed.getErrorMessage().size()>0){
+                    jsonOutPut.put("status","f");
                     errorMessage.addAll(mosicEmbed.getErrorMessage());
                 }
                 String embeddedImageName = imageName + "_" + filter+ "_embedded";
                 try {
                     tempTable tempTable = new tempTable(userId,imageName,imageBase64,imageCompressBase64,embeddedImageName,filter,imageOutPut,imageCompressedOut,encryptKey,encryptedInformation);
                     tempRepository.save(tempTable);
+                    jsonOutPut.put("status","s");
+                    jsonOutPut.put("embeddedImage",imageCompressedOut);
                 }catch (Exception e){
                     exceptionMessage.add(e.getMessage());
                 }
@@ -189,30 +142,32 @@ public class uploadImageForEmbedded {
                 imageOutPut = pencilPaintEmbed.embedded(encryptedInformation);
                 imageCompressedOut = compress.compress(imageOutPut);
                 if (imageCompressedOut==null&&imageOutPut!=null){
+                    jsonOutPut.put("status","f");
                     errorMessage.add("Error Code 105. Fail to generator a review image");
                 }
                 if(pencilPaintEmbed.getExceptionMessage().size()>0){
                     exceptionMessage.addAll(pencilPaintEmbed.getExceptionMessage());
                 }
                 if (pencilPaintEmbed.getErrorMessage().size()>0){
+                    jsonOutPut.put("status","f");
                     errorMessage.addAll(pencilPaintEmbed.getErrorMessage());
                 }
                 String embeddedImageName = imageName + "_" + filter+ "_embedded";
                 try {
                     tempTable tempTable = new tempTable(userId,imageName,imageBase64,imageCompressBase64,embeddedImageName,filter,imageOutPut,imageCompressedOut,encryptKey,encryptedInformation);
                     tempRepository.save(tempTable);
+                    jsonOutPut.put("status","s");
+                    jsonOutPut.put("embeddedImage",imageCompressedOut);
                 }catch (Exception e){
                     exceptionMessage.add(e.getMessage());
                 }
 
             }
-            jsonPayload.put("embeddedImage",imageCompressedOut);
-            jsonPayload.put("status","s");
+
         }
         catch (JsonParseException e) { e.printStackTrace();exceptionMessage.add(e.getMessage());}
         catch (JsonMappingException e) { e.printStackTrace(); exceptionMessage.add(e.getMessage());}
         catch (IOException e) { e.printStackTrace(); exceptionMessage.add(e.getMessage());}
-        jsonOutPut.put("payload",jsonPayload.returmMap());
         jsonOutPut.put("error",errorMessage);
         jsonOutPut.put("exception",exceptionMessage);
         return jsonOutPut.returmMap();
@@ -221,12 +176,11 @@ public class uploadImageForEmbedded {
     @GetMapping ("/confirmEmbeddedImage/{userId}")
     public Map<String, Object> confirmImageEmbedded(@PathVariable("userId") Long id)throws Exception{
         ArrayList<String> errorMessage = new ArrayList<>();
-        JsonCustomized<String,String> jsonPayload= new JsonCustomized<>();
         JsonCustomized<String,Object> jsonOutPut =new JsonCustomized<>();
         ArrayList<String> exceptionMessage = new ArrayList<>();
         final Optional<tempTable> retrieveTempData = tempRepository.findByUserId(id);
         if(retrieveTempData.isEmpty()){
-            jsonPayload.put("status","f");
+            jsonOutPut.put("status","f");
             errorMessage.add("Error Code 106. Fail to confirm embedded image");
         }
         else {
@@ -244,6 +198,7 @@ public class uploadImageForEmbedded {
             final Optional<embeddedImage> retrievedEmbeddedImageByName = embeddedImageRepository.findByName(tempTable.getEmbeddedImageName());
             Long embeddedImageId=null;
             if (retrievedEmbeddedImageByName.isEmpty()){
+                jsonOutPut.put("status","f");
                 errorMessage.add("Error Code 101.Error occur in database.");
             }else {
                 embeddedImageId = retrievedEmbeddedImageByName.get().getEmbeddedImageId();
@@ -251,6 +206,7 @@ public class uploadImageForEmbedded {
             final Optional<originalImage> retrievedOriginalImageByName = originalImageRepository.findByName(tempTable.getOriginalImageName());
             Long originalImageId=null;
             if (retrievedOriginalImageByName.isEmpty()){
+                jsonOutPut.put("status","f");
                 errorMessage.add("Error Code 101.Error occur in database.");
             }
             else{
@@ -260,12 +216,11 @@ public class uploadImageForEmbedded {
                 embeddedDetails embeddedDetails = new embeddedDetails(id,originalImageId,embeddedImageId,tempTable.getFilter());
                 embeddedDetailsRepository.save(embeddedDetails);
                 tempRepository.deleteAllByUserId(id);
+                jsonOutPut.put("status","s");
             }catch (Exception e){
                 exceptionMessage.add(e.getMessage());
             }
-            jsonPayload.put("status","s");
         }
-        jsonOutPut.put("payload",jsonPayload.returmMap());
         jsonOutPut.put("error",errorMessage);
         jsonOutPut.put("exception",exceptionMessage);
         return jsonOutPut.returmMap();
@@ -275,11 +230,10 @@ public class uploadImageForEmbedded {
     public Map<String,Object> cancelEmbedding (@PathVariable("userId") Long id)throws Exception  {
         ArrayList<String> errorMessage = new ArrayList<>();
         ArrayList<String> exceptionMessage = new ArrayList<>();
-        JsonCustomized<String,String> jsonPayload= new JsonCustomized<>();
         JsonCustomized<String,Object> jsonOutPut =new JsonCustomized<>();
         final Optional<tempTable> retrieveTempData = tempRepository.findByUserId(id);
         if(retrieveTempData.isEmpty()){
-            jsonPayload.put("status","f");
+            jsonOutPut.put("status","f");
             errorMessage.add("Error Code 101.Error occur in database.");
         }
         else {
@@ -290,13 +244,13 @@ public class uploadImageForEmbedded {
                 exceptionMessage.add(e.getMessage());
             }
             if (!tempRepository.findByUserId(id).isEmpty()){
+                jsonOutPut.put("status","f");
                 errorMessage.add("Error Code 107.Fail to cancel the embedding process.");
             }
             else {
-                jsonPayload.put("status","s");
+                jsonOutPut.put("status","s");
             }
         }
-        jsonOutPut.put("payload",jsonPayload.returmMap());
         jsonOutPut.put("error",errorMessage);
         jsonOutPut.put("exception",exceptionMessage);
         return jsonOutPut.returmMap();
@@ -304,7 +258,6 @@ public class uploadImageForEmbedded {
     @Transactional(rollbackFor =  Exception.class)
     @PutMapping("/refresh/{userId}")
     public Map<String,Object> refreshEmbedding (@PathVariable("userId") Long id)throws Exception{
-        JsonCustomized<String,String> jsonPayload= new JsonCustomized<>();
         JsonCustomized<String,Object> jsonOutPut =new JsonCustomized<>();
         final Optional<tempTable> retrieveTempDetail =tempRepository.findByUserId(id);
         tempTable newTempTable =retrieveTempDetail.get();
@@ -317,9 +270,8 @@ public class uploadImageForEmbedded {
         newTempTable.setEmbeddedImage1Base64(embeddedImageBase64);
         newTempTable.setEmbeddedImageCompressedBase64(embeddedImageCompressBase64);
         tempRepository.save(newTempTable);
-        jsonPayload.put("embeddedImage",embeddedImageCompressBase64);
-        jsonPayload.put("status","s");
-        jsonOutPut.put("payload",jsonPayload.returmMap());
+        jsonOutPut.put("embeddedImage",embeddedImageCompressBase64);
+        jsonOutPut.put("status","s");
         return jsonOutPut.returmMap();
     }
     @GetMapping(path = { "/get/{userId}" })
@@ -332,16 +284,18 @@ public class uploadImageForEmbedded {
     @GetMapping(path = { "/getEmbeddedImageFromDatabase/{embeddedImageId}" })
     public Map<String, Object> getEmbeddedImageFromDatabase (@PathVariable("embeddedImageId") String id) throws IOException{
         Long embeddedImageId = Long.parseLong(id);
-        JsonCustomized<String,String> jsonPayload= new JsonCustomized<>();
         JsonCustomized<String,Object> jsonOutPut =new JsonCustomized<>();
         final Optional<embeddedImage> retrievedEmbeddedImage = embeddedImageRepository.findByEmbeddedImageId(embeddedImageId);
         String embeddedImageCompressedBase64 = retrievedEmbeddedImage.get().imageCompressedBase64();
         if(embeddedImageCompressedBase64==null){
             String errorMessage = "Cannot find the embeddedImage";
             jsonOutPut.put("error",errorMessage);
+            jsonOutPut.put("status","f");
+        }else {
+            jsonOutPut.put("embeddedImageCompressedBase64",embeddedImageCompressedBase64);
+            jsonOutPut.put("status","s");
         }
-        jsonPayload.put("embeddedImageCompressedBase64",embeddedImageCompressedBase64);
-        jsonOutPut.put("payload",jsonPayload.returmMap());
+
         return jsonOutPut.returmMap();
     }
     @PostMapping (path = {"/extractFromImage"})
@@ -350,7 +304,6 @@ public class uploadImageForEmbedded {
         ObjectMapper mapper = new ObjectMapper();
         String jsonString = allParams;
         ArrayList<String> errorMessage = new ArrayList<>();
-        JsonCustomized<String,String> jsonPayload= new JsonCustomized<>();
         JsonCustomized<String,Object> jsonOutPut =new JsonCustomized<>();
         try{
             requestForExtraction request = mapper.readValue(jsonString, requestForExtraction.class);
@@ -363,15 +316,15 @@ public class uploadImageForEmbedded {
                     System.out.println(extractedString);
                     final Optional<List<encryptionDetail>> retrieveEmbeddedDetails =encryptionDetailsRepository.findByUserIdAndEncryptedString(userId,extractedString);
                     if (retrieveEmbeddedDetails.isEmpty()){
-                        jsonPayload.put("status","f");
+                        jsonOutPut.put("status","f");
                         errorMessage.add("Error code 301. Fail to extract information");
                     }
                     else {
                         ASEEncryption aseEncryption = new ASEEncryption();
                         String encryptionKey =retrieveEmbeddedDetails.get().get(0).getEncryptionKey();
                         String hiddenInformation = aseEncryption.decrypt(extractedString,encryptionKey);
-                        jsonPayload.put("status","s");
-                        jsonPayload.put("hiddenInformation",hiddenInformation);
+                        jsonOutPut.put("status","s");
+                        jsonOutPut.put("hiddenInformation",hiddenInformation);
                     }
             }
             else if (filter.equalsIgnoreCase("fragment") ){
@@ -380,49 +333,44 @@ public class uploadImageForEmbedded {
                 System.out.println(extractedString);
                 final Optional<List<encryptionDetail>> retrieveEmbeddedDetails =encryptionDetailsRepository.findByUserIdAndEncryptedString(userId,extractedString);
                 if (retrieveEmbeddedDetails.isEmpty()){
-                    jsonPayload.put("status","f");
+                    jsonOutPut.put("status","f");
                     errorMessage.add("Error code 301. Fail to extract information");
                 }
                 else {
                     ASEEncryption aseEncryption = new ASEEncryption();
                     String encryptionKey =retrieveEmbeddedDetails.get().get(0).getEncryptionKey();
                     String hiddenInformation = aseEncryption.decrypt(extractedString,encryptionKey);
-                    jsonPayload.put("status","s");
-                    jsonPayload.put("hiddenInformation",hiddenInformation);
+                    jsonOutPut.put("status","s");
+                    jsonOutPut.put("hiddenInformation",hiddenInformation);
                 }
             }
 
         }
 
         catch (IOException e) { e.printStackTrace(); errorMessage.add(e.getMessage());}
-        jsonOutPut.put("payload",jsonPayload.returmMap());
         jsonOutPut.put("error",errorMessage);
         return jsonOutPut.returmMap();
     }
     @GetMapping(path = { "/getOriginalImageList/{userId}" })
     public Map<String, Object> getOriginalImageList (@PathVariable("userId") String id) throws IOException{
         Long userId = Long .parseLong(id);
-
+        ArrayList<String> errorMessage = new ArrayList<>();
         List <imageDetail> list =new ArrayList<>();
 
-        JsonCustomized<String,String> jsonStatusAndError =new JsonCustomized<>();
-        JsonCustomized<String,Object> jsonPayload= new JsonCustomized<>();
         JsonCustomized<String,Object> jsonOutPut =new JsonCustomized<>();
         final Optional <List<originalImage>> retrieveOriginalImageList = originalImageRepository.findByUserId(userId);
         if(retrieveOriginalImageList.get().size()!=0){
             for (int i =0 ;i<retrieveOriginalImageList.get().size();i++){
                 list.add(new imageDetail(retrieveOriginalImageList.get().get(i).getOriginalImageId(),retrieveOriginalImageList.get().get(i).getImageCompressedBase64(),retrieveOriginalImageList.get().get(i).getName()));
             }
-            jsonPayload.put("originalImageList" , list);
-            jsonStatusAndError.put("status","s");
+            jsonOutPut.put("originalImageList" , list);
+            jsonOutPut.put("status","s");
         }
         else {
-            jsonStatusAndError.put("status","f");
-            jsonStatusAndError.put("error","Cannot retrieve data from database");
+            jsonOutPut.put("status","f");
+            errorMessage.add("Error Code 101.Error occur in database.");
         }
-        jsonOutPut.put("payload",jsonPayload.returmMap());
-        jsonOutPut.put("statusAndError",jsonStatusAndError.returmMap());
-
+        jsonOutPut.put("error",errorMessage);
         return jsonOutPut.returmMap();
     }
     class imageDetail{

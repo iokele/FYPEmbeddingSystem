@@ -1,9 +1,7 @@
 package com.fypembeddingapplication.embeddingapplication.model;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -20,7 +18,7 @@ import java.util.HashMap;
 @Getter
 @Setter
 @Builder
-public class User implements UserDetails {
+public class User{
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name = "id")
@@ -39,6 +37,8 @@ public class User implements UserDetails {
     private String defaultDigitalWatermark;
     @Column(name = "enabled")
     private Boolean enabled = false;
+    @Column(name = "changing")
+    private Boolean changing = false;
     @Column(name = "role")
     private String role = "USER";
 
@@ -51,10 +51,7 @@ public class User implements UserDetails {
         this.password=password;
         this.defaultDigitalWatermark=defaultDigitalWatermark;
     }
-    public Collection<? extends GrantedAuthority> getAuthorities(){
-        SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(role);
-        return Collections.singletonList(simpleGrantedAuthority);
-    }
+
     public Boolean getEnabled() {
         return enabled;
     }
@@ -105,23 +102,14 @@ public class User implements UserDetails {
         return email;
     }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
     public boolean isEnabled() {
         return enabled;
+    }
+
+    public Boolean isChanging() {
+        return changing;
+    }
+    public void setChanging(Boolean changing) {
+        this.changing = changing;
     }
 }

@@ -10,13 +10,14 @@ import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import java.util.ArrayList;
 
 @Service
 @AllArgsConstructor
 public class EmailSenderService {
     private JavaMailSender javaMailSender;
     @Async
-    public void sendEmail(String userMail, String token){
+    public int sendEmail(String userMail, String token){
         try {
             MimeMessage mailMessage = javaMailSender.createMimeMessage();
             MimeMessageHelper messageHelper = new MimeMessageHelper(mailMessage, true);
@@ -24,10 +25,13 @@ public class EmailSenderService {
             messageHelper.setSubject("Mail Confirmation Link!");
             messageHelper.setText("Thank you for registering. Please enter below token in the application to activate your account:" + token );
             javaMailSender.send(mailMessage);
+            return 1;
         }catch (MessagingException e){
             e.printStackTrace();
+            return 2;
         }catch (MailException e){
             e.printStackTrace();
+            return 2;
         }
 
     }
