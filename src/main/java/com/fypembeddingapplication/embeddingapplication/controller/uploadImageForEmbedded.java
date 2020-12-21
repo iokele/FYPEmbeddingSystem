@@ -168,6 +168,9 @@ public class uploadImageForEmbedded {
         catch (JsonParseException e) { e.printStackTrace();exceptionMessage.add(e.getMessage());}
         catch (JsonMappingException e) { e.printStackTrace(); exceptionMessage.add(e.getMessage());}
         catch (IOException e) { e.printStackTrace(); exceptionMessage.add(e.getMessage());}
+        if(errorMessage.size()!=0||exceptionMessage.size()!=0){
+            jsonOutPut.put("status","f");
+        }
         jsonOutPut.put("error",errorMessage);
         jsonOutPut.put("exception",exceptionMessage);
         return jsonOutPut.returmMap();
@@ -221,6 +224,9 @@ public class uploadImageForEmbedded {
                 exceptionMessage.add(e.getMessage());
             }
         }
+        if(errorMessage.size()!=0||exceptionMessage.size()!=0){
+            jsonOutPut.put("status","f");
+        }
         jsonOutPut.put("error",errorMessage);
         jsonOutPut.put("exception",exceptionMessage);
         return jsonOutPut.returmMap();
@@ -250,6 +256,9 @@ public class uploadImageForEmbedded {
             else {
                 jsonOutPut.put("status","s");
             }
+        }
+        if(errorMessage.size()!=0||exceptionMessage.size()!=0){
+            jsonOutPut.put("status","f");
         }
         jsonOutPut.put("error",errorMessage);
         jsonOutPut.put("exception",exceptionMessage);
@@ -348,6 +357,9 @@ public class uploadImageForEmbedded {
         }
 
         catch (IOException e) { e.printStackTrace(); errorMessage.add(e.getMessage());}
+        if(errorMessage.size()!=0){
+            jsonOutPut.put("status","f");
+        }
         jsonOutPut.put("error",errorMessage);
         return jsonOutPut.returmMap();
     }

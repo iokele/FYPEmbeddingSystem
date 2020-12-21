@@ -55,6 +55,9 @@ public class UserController {
         }catch (Exception e){
             exceptionMessage.add(e.getMessage());
         }
+        if(errorMessage.size()!=0||exceptionMessage.size()!=0){
+            jsonBody.put("sign_up","fail");
+        }
         jsonBody.put("exception_message",exceptionMessage);
         jsonBody.put("errorMessage",errorMessage);
         return jsonBody.returmMap();
@@ -74,7 +77,7 @@ public class UserController {
             ConfirmationToken confirmationToken =confirmationTokenService.findConfirmationToken(token);
             if (confirmationToken!=null){
                 userService.confirmUser(confirmationToken);
-                jsonBody.put("confirmation","success");
+                jsonBody.put("confirm_user","success");
             }else {
                 jsonBody.put("confirm_user","fail");
                 errorMessage.add("Wrong confirmation token");
@@ -82,6 +85,9 @@ public class UserController {
 
         }catch (Exception e){
             exceptionMessage.add(e.getMessage());
+        }
+        if(errorMessage.size()!=0||exceptionMessage.size()!=0){
+            jsonBody.put("confirm_user","fail");
         }
         jsonBody.put("exception_message",exceptionMessage);
         jsonBody.put("errorMessage",errorMessage);
@@ -116,6 +122,9 @@ public class UserController {
         }catch (Exception e){
             exceptionMessage.add(e.getMessage());
         }
+        if(errorMessage.size()!=0||exceptionMessage.size()!=0){
+            jsonBody.put("sign_in","fail");
+        }
         jsonBody.put("exception_message",exceptionMessage);
         jsonBody.put("errorMessage",errorMessage);
         return jsonBody.returmMap();
@@ -140,10 +149,13 @@ public class UserController {
                 errorMessage.add("Error .Something wrong with the Email server. Please contact us.");
             }else if (indicator==3){
                 jsonBody.put("forget_password","fail");
-                errorMessage.add("Error .This email has not been registered yet");
+                errorMessage.add("Error .This email does not exist");
             }
         }catch (Exception e){
             exceptionMessage.add(e.getMessage());
+        }
+        if(errorMessage.size()!=0||exceptionMessage.size()!=0){
+            jsonBody.put("forget_password","fail");
         }
         jsonBody.put("exception_message",exceptionMessage);
         jsonBody.put("errorMessage",errorMessage);
@@ -172,6 +184,9 @@ public class UserController {
 
         }catch (Exception e){
             exceptionMessage.add(e.getMessage());
+        }
+        if(errorMessage.size()!=0||exceptionMessage.size()!=0){
+            jsonBody.put("confirm_change_password","fail");
         }
         jsonBody.put("exception_message",exceptionMessage);
         jsonBody.put("errorMessage",errorMessage);
@@ -202,6 +217,9 @@ public class UserController {
             }
         }catch (Exception e){
             exceptionMessage.add(e.getMessage());
+        }
+        if(errorMessage.size()!=0||exceptionMessage.size()!=0){
+            jsonBody.put("change_password","fail");
         }
         jsonBody.put("exception_message",exceptionMessage);
         jsonBody.put("errorMessage",errorMessage);
