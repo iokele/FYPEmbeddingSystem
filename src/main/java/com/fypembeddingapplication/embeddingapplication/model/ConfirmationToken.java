@@ -13,7 +13,7 @@ public class ConfirmationToken {
     @Column(name = "id")
     private Long Id;
     @Column(name = "confirmation_token")
-    private String confirmatinToken;
+    private String confirmationToken;
     @Column(name = "created_date")
     private LocalDate createdDate;
     @OneToOne(targetEntity = User.class,fetch = FetchType.EAGER)
@@ -23,8 +23,10 @@ public class ConfirmationToken {
    public ConfirmationToken(User user){
         this.user =user;
         this.createdDate =LocalDate.now();
-        this.confirmatinToken = generateToken();
+        this.confirmationToken = generateToken();
     }
+    public ConfirmationToken(){super();}
+
 
     public Long getId() {
         return Id;
@@ -34,12 +36,12 @@ public class ConfirmationToken {
         Id = id;
     }
 
-    public String getConfirmatinToken() {
-        return confirmatinToken;
+    public String getConfirmationToken() {
+        return confirmationToken;
     }
 
-    public void setConfirmatinToken(String confirmatinToken) {
-        this.confirmatinToken = confirmatinToken;
+    public void setConfirmatinToken(String confirmationToken) {
+        this.confirmationToken = confirmationToken;
     }
 
     public LocalDate getCreatedDate() {

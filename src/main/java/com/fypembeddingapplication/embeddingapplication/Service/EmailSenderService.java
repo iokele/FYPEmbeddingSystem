@@ -1,5 +1,7 @@
 package com.fypembeddingapplication.embeddingapplication.Service;
 
+import com.fypembeddingapplication.embeddingapplication.database.ConfirmationTokenRepository;
+import com.fypembeddingapplication.embeddingapplication.database.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
@@ -16,8 +18,11 @@ import java.util.ArrayList;
 @AllArgsConstructor
 public class EmailSenderService {
     private JavaMailSender javaMailSender;
+    private UserRepository userRepository;
+    private ConfirmationTokenRepository confirmationTokenRepository;
     @Async
-    public int sendEmail(String userMail, String token){
+    public int sendEmail(String userMail, String token,int type){
+        //type 1 for sign up, type 2 for forget password.
         try {
             MimeMessage mailMessage = javaMailSender.createMimeMessage();
             MimeMessageHelper messageHelper = new MimeMessageHelper(mailMessage, true);
@@ -28,9 +33,18 @@ public class EmailSenderService {
             return 1;
         }catch (MessagingException e){
             e.printStackTrace();
+            if (type==1){
+                userRepository.deleteByEmail(userMail);
+                confirmationTokenRepository.deleteByConfirmationToken(token);
+            }
+
             return 2;
         }catch (MailException e){
             e.printStackTrace();
+            if (type==1){
+                userRepository.deleteByEmail(userMail);
+                confirmationTokenRepository.deleteByConfirmationToken(token);
+            }
             return 2;
         }
 

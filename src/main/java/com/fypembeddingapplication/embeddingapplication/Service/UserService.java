@@ -36,7 +36,7 @@ public class UserService{
            userRepository.save(user);
            ConfirmationToken confirmationToken = new ConfirmationToken(user);
            confirmationTokenService.saveConfirmationToken(confirmationToken);
-           int sendEmailIndicator=sendConfirmationMail(email,confirmationToken.getConfirmatinToken());
+           int sendEmailIndicator=sendConfirmationMail(email,confirmationToken.getConfirmationToken(),1);
            if (sendEmailIndicator==1){
                return 3;
            }else return 4;
@@ -62,8 +62,8 @@ public class UserService{
             return 3;
         }
     }
-   public int sendConfirmationMail(String userMail, String token){
-        int indicator =emailSenderService .sendEmail(userMail,token);
+   public int sendConfirmationMail(String userMail, String token,int type){
+        int indicator =emailSenderService .sendEmail(userMail,token,type);
         if (indicator==1){
             return 1;
         }else {
@@ -87,7 +87,7 @@ public class UserService{
         if (optionalUser.isPresent()){
             ConfirmationToken confirmationToken = new ConfirmationToken(optionalUser.get());
             confirmationTokenService.saveConfirmationToken(confirmationToken);
-            int emailIndicator=sendConfirmationMail(email,confirmationToken.getConfirmatinToken());
+            int emailIndicator=sendConfirmationMail(email,confirmationToken.getConfirmationToken(),2);
             if (emailIndicator==1){
                 return 1;
             }else {

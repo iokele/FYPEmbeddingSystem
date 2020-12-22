@@ -17,10 +17,10 @@ public class ConfirmationTokenService {
         confirmationTokenRepository.deleteById(id);
     }
     public ConfirmationToken findConfirmationToken(String token){
-        Optional<ConfirmationToken> optionalConfirmationToken= confirmationTokenRepository.findAllByConfirmatinToken(token);
+        Optional<ConfirmationToken> optionalConfirmationToken= confirmationTokenRepository.findByConfirmationToken(token);
        if (optionalConfirmationToken.isPresent()){
            return optionalConfirmationToken.get();
-       }else return null;
-
+       }else
+           return null;
     }
 }
