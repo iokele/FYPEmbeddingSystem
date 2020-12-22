@@ -19,7 +19,7 @@ public class UserService{
     private UserRepository userRepository;
     private ConfirmationTokenService confirmationTokenService ;
     private EmailSenderService emailSenderService;
-    private String token;
+
 
     public int signUpUser (String email,String username, String password){
 
@@ -51,7 +51,6 @@ public class UserService{
             if (user.getPassword().equals(encryptedPassword)){
                 if (user.isEnabled()){
                     user.setToken(generateToken());
-                    token=user.getToken();
                     userRepository.save(user);
                     return 1;
                 }else {
@@ -137,7 +136,8 @@ public class UserService{
         return sb.toString();
     }
 
-    public String getToken() {
-        return token;
+    public String getToken(String email) {
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        return optionalUser.get().getToken();
     }
 }
