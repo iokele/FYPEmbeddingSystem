@@ -106,11 +106,12 @@ public class UserController {
         JsonCustomized<String,Object> jsonBody =new JsonCustomized<>();
         try {
             requestForSignIn requestForSignIn = mapper.readValue(jsonString, requestForSignIn.class);
-            String emmail = requestForSignIn.getEmail();
+            String email = requestForSignIn.getEmail();
             String password = requestForSignIn.getPassword();
-            int indicator = userService.signInUser(emmail,password);
+            int indicator = userService.signInUser(email,password);
             if (indicator ==1){
                 jsonBody.put("sign_in","success");
+                jsonBody.put("token",userService.getToken());
             }
             else if (indicator==2){
                 jsonBody.put("sign_in","fail");

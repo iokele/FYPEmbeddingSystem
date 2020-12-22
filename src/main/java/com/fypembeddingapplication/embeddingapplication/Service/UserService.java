@@ -19,7 +19,7 @@ public class UserService{
     private UserRepository userRepository;
     private ConfirmationTokenService confirmationTokenService ;
     private EmailSenderService emailSenderService;
-
+    private String token;
 
     public int signUpUser (String email,String username, String password){
 
@@ -44,10 +44,15 @@ public class UserService{
     }
     public int signInUser(String email, String password){
         Optional<User> optionalUser = userRepository.findByEmail(email);
+
         if (optionalUser.isPresent()){
+            User user = optionalUser.get();
             String encryptedPassword = encryptPassword(email,password);
-            if (optionalUser.get().getPassword().equals(encryptedPassword)){
-                if (optionalUser.get().isEnabled()){
+            if (user.getPassword().equals(encryptedPassword)){
+                if (user.isEnabled()){
+                    user.setToken(generateToken());
+                    token=user.getToken();
+                    userRepository.save(user);
                     return 1;
                 }else {
                     return 2;
@@ -114,15 +119,25 @@ public class UserService{
             return 3;
         }
     }
+
     private String encryptPassword(String email, String password){
         ASEEncryption encryption = new ASEEncryption();
         int index = email.indexOf('@');
         String embeddedKey= email.substring(0,index);
         return encryption.encrypt(password,embeddedKey);
     }
+    private String generateToken(){
+        String AlphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "0123456789" + "abcdefghijklmnopqrstuvxyz";
+        int n = 17;
+        StringBuilder sb = new StringBuilder(n);
+        for (int i = 0; i < n; i++) {
+            int index = (int)(AlphaNumericString.length() * Math.random());
+            sb.append(AlphaNumericString.charAt(index));
+        }
+        return sb.toString();
+    }
 
-
-
-
-
+    public String getToken() {
+        return token;
+    }
 }

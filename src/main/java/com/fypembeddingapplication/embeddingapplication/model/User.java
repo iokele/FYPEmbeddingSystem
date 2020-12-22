@@ -41,7 +41,8 @@ public class User{
     private Boolean changing = false;
     @Column(name = "role")
     private String role = "USER";
-
+    @Column(name = "token")
+    private String token;
     public User(){
         super();
     }
@@ -111,5 +112,12 @@ public class User{
     }
     public void setChanging(Boolean changing) {
         this.changing = changing;
+    }
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }
