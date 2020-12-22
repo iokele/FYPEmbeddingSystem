@@ -46,12 +46,11 @@ public class UserService{
         Optional<User> optionalUser = userRepository.findByEmail(email);
 
         if (optionalUser.isPresent()){
-            User user = optionalUser.get();
             String encryptedPassword = encryptPassword(email,password);
-            if (user.getPassword().equals(encryptedPassword)){
-                if (user.isEnabled()){
-                    user.setToken(generateToken());
-                    userRepository.save(user);
+            if (optionalUser.get().getPassword().equals(encryptedPassword)){
+                if (optionalUser.get().isEnabled()){
+                    optionalUser.get().setToken(generateToken());
+                    userRepository.save(optionalUser.get());
                     return 1;
                 }else {
                     return 2;
@@ -135,8 +134,7 @@ public class UserService{
         }
         return sb.toString();
     }
-
-    public String getToken(String email) {
+    public String getToken(String email){
         Optional<User> optionalUser = userRepository.findByEmail(email);
         return optionalUser.get().getToken();
     }
