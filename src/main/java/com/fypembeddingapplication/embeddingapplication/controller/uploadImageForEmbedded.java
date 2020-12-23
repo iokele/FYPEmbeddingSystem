@@ -139,7 +139,7 @@ public class uploadImageForEmbedded {
                     tempTable tempTable = new tempTable(userId,imageName,imageBase64,imageCompressBase64,embeddedImageName,filter,imageOutPut,imageCompressedOut,encryptKey,encryptedInformation);
                     tempRepository.save(tempTable);
                     jsonOutPut.put("status","s");
-                    jsonOutPut.put("embeddedImage",imageCompressedOut);
+//                    jsonOutPut.put("embeddedImage",imageCompressedOut);
                 }catch (Exception e){
                     exceptionMessage.add(e.getMessage());
                 }
@@ -164,17 +164,40 @@ public class uploadImageForEmbedded {
                     tempTable tempTable = new tempTable(userId,imageName,imageBase64,imageCompressBase64,embeddedImageName,filter,imageOutPut,imageCompressedOut,encryptKey,encryptedInformation);
                     tempRepository.save(tempTable);
                     jsonOutPut.put("status","s");
-                    jsonOutPut.put("embeddedImage",imageCompressedOut);
+//                    jsonOutPut.put("embeddedImage",imageCompressedOut);
                 }catch (Exception e){
                     exceptionMessage.add(e.getMessage());
                 }
-
             }
-
         }
         catch (JsonParseException e) { e.printStackTrace();exceptionMessage.add(e.getMessage());}
         catch (JsonMappingException e) { e.printStackTrace(); exceptionMessage.add(e.getMessage());}
         catch (IOException e) { e.printStackTrace(); exceptionMessage.add(e.getMessage());}
+        if(errorMessage.size()!=0||exceptionMessage.size()!=0){
+            jsonOutPut.put("status","f");
+        }
+        jsonOutPut.put("error",errorMessage);
+        jsonOutPut.put("exception",exceptionMessage);
+        return jsonOutPut.returmMap();
+    }
+    @GetMapping ("/get_review_embedded_image/{userId}")
+    public Map<String, Object> getReviewEmbeddedImage(@PathVariable("userId") Long id){
+        ArrayList<String> errorMessage = new ArrayList<>();
+        JsonCustomized<String,Object> jsonOutPut =new JsonCustomized<>();
+        ArrayList<String> exceptionMessage = new ArrayList<>();
+        try {
+            final Optional<tempTable> retrieveTempData = tempRepository.findByUserId(id);
+            if(retrieveTempData.isPresent()){
+                jsonOutPut.put("status","f");
+                errorMessage.add("Error Code 106. Fail to get embedded image");
+            }else {
+                tempTable tempTable = retrieveTempData.get();
+                jsonOutPut.put("embeddedImage",tempTable.getEmbeddedImageCompressedBase64());
+                jsonOutPut.put("status","s");
+            }
+        }catch (Exception e){
+            exceptionMessage.add(e.getMessage());
+        }
         if(errorMessage.size()!=0||exceptionMessage.size()!=0){
             jsonOutPut.put("status","f");
         }
@@ -189,7 +212,8 @@ public class uploadImageForEmbedded {
         JsonCustomized<String,Object> jsonOutPut =new JsonCustomized<>();
         ArrayList<String> exceptionMessage = new ArrayList<>();
         final Optional<tempTable> retrieveTempData = tempRepository.findByUserId(id);
-        if(retrieveTempData.isEmpty()){
+
+        if(retrieveTempData.isPresent()){
             jsonOutPut.put("status","f");
             errorMessage.add("Error Code 106. Fail to confirm embedded image");
         }
