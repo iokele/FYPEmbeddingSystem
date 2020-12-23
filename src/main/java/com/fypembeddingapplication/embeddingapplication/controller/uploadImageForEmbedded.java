@@ -61,6 +61,7 @@ public class uploadImageForEmbedded {
         JsonOutput.getJson().setBody(body);
         return JsonOutput.getJson();
     }
+    @Transactional
     @PostMapping("/getTempEmbeddedImage")
     @ResponseBody
     public Map<String, Object> getTempEmbeddedImage(@RequestBody String allParams){
@@ -84,6 +85,7 @@ public class uploadImageForEmbedded {
                 try {
                     tempRepository.deleteAllByUserId(userId);
                 }catch (Exception e){
+                    e.printStackTrace();
                     exceptionMessage.add(e.getMessage());
                 }
             }
@@ -133,8 +135,9 @@ public class uploadImageForEmbedded {
                     tempTable tempTable = new tempTable(userId,imageName,imageBase64,imageCompressBase64,embeddedImageName,filter,imageOutPut,imageCompressedOut,encryptKey,encryptedInformation);
                     tempRepository.save(tempTable);
                     jsonOutPut.put("status","s");
-//                    jsonOutPut.put("embeddedImage",imageCompressedOut);
+                    jsonOutPut.put("embeddedImage",imageCompressedOut);
                 }catch (Exception e){
+                    e.printStackTrace();
                     exceptionMessage.add(e.getMessage());
                 }
             }
@@ -158,8 +161,9 @@ public class uploadImageForEmbedded {
                     tempTable tempTable = new tempTable(userId,imageName,imageBase64,imageCompressBase64,embeddedImageName,filter,imageOutPut,imageCompressedOut,encryptKey,encryptedInformation);
                     tempRepository.save(tempTable);
                     jsonOutPut.put("status","s");
-//                    jsonOutPut.put("embeddedImage",imageCompressedOut);
+                    jsonOutPut.put("embeddedImage",imageCompressedOut);
                 }catch (Exception e){
+                    e.printStackTrace();
                     exceptionMessage.add(e.getMessage());
                 }
             }
