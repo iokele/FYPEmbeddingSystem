@@ -6,6 +6,7 @@ public class requestForEmbeddedImageID {
     private String name;
     private String filter;
     private String secondaryPassword;
+    private String embedText;
     public requestForEmbeddedImageID() {
     }
 
@@ -47,5 +48,13 @@ public class requestForEmbeddedImageID {
 
     public void setSecondaryPassword(String secondaryPassword) {
         this.secondaryPassword = secondaryPassword;
+    }
+
+    public String getEmbedText() {
+        return embedText;
+    }
+
+    public void setEmbedText(String embedText) {
+        this.embedText = embedText;
     }
 }

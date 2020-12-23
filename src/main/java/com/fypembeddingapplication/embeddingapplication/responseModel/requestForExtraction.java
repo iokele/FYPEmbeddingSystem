@@ -2,9 +2,9 @@ package com.fypembeddingapplication.embeddingapplication.responseModel;
 
 public class requestForExtraction {
     private String embeddedImage;
-    private Long originalImageId;
     private Long userId;
     private String filter;
+    private String secondaryPassword;
     public requestForExtraction() {
     }
 
@@ -32,11 +32,11 @@ public class requestForExtraction {
         this.userId = userId;
     }
 
-    public Long getOriginalImageId() {
-        return originalImageId;
+    public String getSecondaryPassword() {
+        return secondaryPassword;
     }
 
-    public void setOriginalImageId(Long originalImageId) {
-        this.originalImageId = originalImageId;
+    public void setSecondaryPassword(String secondaryPassword) {
+        this.secondaryPassword = secondaryPassword;
     }
 }

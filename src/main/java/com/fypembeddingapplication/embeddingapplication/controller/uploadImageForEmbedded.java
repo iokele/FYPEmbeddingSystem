@@ -75,6 +75,7 @@ public class uploadImageForEmbedded {
             String imageBase64 =request.getImageBase64();
             String filter = request.getFilter();
             String secondaryPassword= request.getSecondaryPassword();
+            String embedText = request.getEmbedText();
             Timestamp timestamp=new Timestamp(System.currentTimeMillis());
             String imageName= request.getName() +"_" +timestamp.toString();
             ImageCompress compress = new ImageCompress();
@@ -86,24 +87,17 @@ public class uploadImageForEmbedded {
                     exceptionMessage.add(e.getMessage());
                 }
             }
-            final Optional<User> retrievedUserByUserID = userRepository.findById(userId);
-            String embeddedInformation=null;
-            if (retrievedUserByUserID.isEmpty()){
-                jsonOutPut.put("status","f");
-                errorMessage.add("Error Code 101. Error occur in Database");
-            }
-            else {
-                embeddedInformation =retrievedUserByUserID.get().getDefaultDigitalWatermark();
-            }
+            String embeddedInformation=embedText;
             ASEEncryption encryption = new ASEEncryption();
-            String encryptKey =null;
-            String encryptedInformation=null;
+            String encryptKey;
+            String encryptedInformation;
             if (secondaryPassword!=null){
-                encryptKey=secondaryPassword;
+                encryptKey=null; //if got secondary password, encryptkey is secondary password
+                encryptedInformation = encryption.encrypt(embeddedInformation,secondaryPassword);//user secondaryPassword for encryption
             }else {
                 encryptKey=encryption.getRandomEncryptKey();
+                encryptedInformation = encryption.encrypt(embeddedInformation,encryptKey);
             }
-            encryptedInformation = encryption.encrypt(embeddedInformation,encryptKey);
             if(encryption.getErrorMessage().size()>0){
                 jsonOutPut.put("status","f");
                 errorMessage.addAll(encryption.getErrorMessage());
@@ -351,10 +345,42 @@ public class uploadImageForEmbedded {
             String embeddedImage = request.getEmbeddedImage();
             Long userId = request.getUserId();
             String filter = request.getFilter();
+            String secondaryPassword=request.getSecondaryPassword();
             if (filter.equalsIgnoreCase("pencil")){
                     PencilPaintEmbed pencilPaintEmbed = new PencilPaintEmbed();
                     String extractedString = pencilPaintEmbed.extract(embeddedImage);
-                    System.out.println(extractedString);
+                    if (secondaryPassword==null){
+                        final Optional<List<encryptionDetail>> retrieveEmbeddedDetails =encryptionDetailsRepository.findByUserIdAndEncryptedString(userId,extractedString);
+                        if (retrieveEmbeddedDetails.isEmpty()){
+                            jsonOutPut.put("status","f");
+                            errorMessage.add("Error code 301. Fail to extract information");
+                        }
+                        else {
+                            ASEEncryption aseEncryption = new ASEEncryption();
+                            String encryptionKey =retrieveEmbeddedDetails.get().get(0).getEncryptionKey();
+                            if (encryptionKey==null){
+                                //Only the embedding without secondary password will have a null value encryptionKey
+                                jsonOutPut.put("status","f");
+                                errorMessage.add("Error code 302. Enter your secondary password");
+                            }else {
+                                String hiddenInformation = aseEncryption.decrypt(extractedString,encryptionKey);
+                                jsonOutPut.put("status","s");
+                                jsonOutPut.put("hiddenInformation",hiddenInformation);
+                            }
+
+                        }
+                    }else{
+                        ASEEncryption aseEncryption = new ASEEncryption();
+                        String hiddenInformation = aseEncryption.decrypt(extractedString,secondaryPassword);
+                        jsonOutPut.put("status","s");
+                        jsonOutPut.put("hiddenInformation",hiddenInformation);
+                    }
+
+            }
+            else if (filter.equalsIgnoreCase("fragment") ){
+                MosicEmbed mosicEmbed = new MosicEmbed(embeddedImage);
+                String extractedString = mosicEmbed.extraction();
+                if (secondaryPassword==null){
                     final Optional<List<encryptionDetail>> retrieveEmbeddedDetails =encryptionDetailsRepository.findByUserIdAndEncryptedString(userId,extractedString);
                     if (retrieveEmbeddedDetails.isEmpty()){
                         jsonOutPut.put("status","f");
@@ -367,20 +393,9 @@ public class uploadImageForEmbedded {
                         jsonOutPut.put("status","s");
                         jsonOutPut.put("hiddenInformation",hiddenInformation);
                     }
-            }
-            else if (filter.equalsIgnoreCase("fragment") ){
-                MosicEmbed mosicEmbed = new MosicEmbed(embeddedImage);
-                String extractedString = mosicEmbed.extraction();
-                System.out.println(extractedString);
-                final Optional<List<encryptionDetail>> retrieveEmbeddedDetails =encryptionDetailsRepository.findByUserIdAndEncryptedString(userId,extractedString);
-                if (retrieveEmbeddedDetails.isEmpty()){
-                    jsonOutPut.put("status","f");
-                    errorMessage.add("Error code 301. Fail to extract information");
-                }
-                else {
+                }else {
                     ASEEncryption aseEncryption = new ASEEncryption();
-                    String encryptionKey =retrieveEmbeddedDetails.get().get(0).getEncryptionKey();
-                    String hiddenInformation = aseEncryption.decrypt(extractedString,encryptionKey);
+                    String hiddenInformation = aseEncryption.decrypt(extractedString,secondaryPassword);
                     jsonOutPut.put("status","s");
                     jsonOutPut.put("hiddenInformation",hiddenInformation);
                 }
