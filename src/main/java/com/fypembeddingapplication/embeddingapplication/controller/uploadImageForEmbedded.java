@@ -74,6 +74,7 @@ public class uploadImageForEmbedded {
             Long userId = request.getUserId();
             String imageBase64 =request.getImageBase64();
             String filter = request.getFilter();
+            String secondaryPassword= request.getSecondaryPassword();
             Timestamp timestamp=new Timestamp(System.currentTimeMillis());
             String imageName= request.getName() +"_" +timestamp.toString();
             ImageCompress compress = new ImageCompress();
@@ -95,8 +96,14 @@ public class uploadImageForEmbedded {
                 embeddedInformation =retrievedUserByUserID.get().getDefaultDigitalWatermark();
             }
             ASEEncryption encryption = new ASEEncryption();
-            String encryptKey = encryption.getRandomEncryptKey();
-            String encryptedInformation = encryption.encrypt(embeddedInformation,encryptKey);
+            String encryptKey =null;
+            String encryptedInformation=null;
+            if (secondaryPassword!=null){
+                encryptKey=secondaryPassword;
+            }else {
+                encryptKey=encryption.getRandomEncryptKey();
+            }
+            encryptedInformation = encryption.encrypt(embeddedInformation,encryptKey);
             if(encryption.getErrorMessage().size()>0){
                 jsonOutPut.put("status","f");
                 errorMessage.addAll(encryption.getErrorMessage());
@@ -218,6 +225,7 @@ public class uploadImageForEmbedded {
             try {
                 embeddedDetails embeddedDetails = new embeddedDetails(id,originalImageId,embeddedImageId,tempTable.getFilter());
                 embeddedDetailsRepository.save(embeddedDetails);
+                jsonOutPut.put("embeddedImage",tempTable.getEmbeddedImage1Base64());
                 tempRepository.deleteAllByUserId(id);
                 jsonOutPut.put("status","s");
             }catch (Exception e){

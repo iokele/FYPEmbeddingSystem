@@ -112,6 +112,7 @@ public class UserController {
             if (indicator ==1){
                 jsonBody.put("sign_in","success");
                 jsonBody.put("token",userService.getToken(email));
+                jsonBody.put("id",userService.getUserId(email));
             }
             else if (indicator==2){
                 jsonBody.put("sign_in","fail");

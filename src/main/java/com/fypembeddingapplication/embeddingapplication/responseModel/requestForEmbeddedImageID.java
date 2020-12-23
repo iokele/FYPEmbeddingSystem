@@ -5,7 +5,7 @@ public class requestForEmbeddedImageID {
     private String imageBase64;
     private String name;
     private String filter;
-
+    private String secondaryPassword;
     public requestForEmbeddedImageID() {
     }
 
@@ -39,5 +39,13 @@ public class requestForEmbeddedImageID {
 
     public void setFilter(String filter) {
         this.filter = filter;
+    }
+
+    public String getSecondaryPassword() {
+        return secondaryPassword;
+    }
+
+    public void setSecondaryPassword(String secondaryPassword) {
+        this.secondaryPassword = secondaryPassword;
     }
 }

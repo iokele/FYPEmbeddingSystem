@@ -62,6 +62,12 @@ public class UserService{
             return 3;
         }
     }
+
+    public Long getUserId(String email){
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        return optionalUser.get().getId();
+    }
+
    public int sendConfirmationMail(String userMail, String token,int type){
         int indicator =emailSenderService .sendEmail(userMail,token,type);
         if (indicator==1){
