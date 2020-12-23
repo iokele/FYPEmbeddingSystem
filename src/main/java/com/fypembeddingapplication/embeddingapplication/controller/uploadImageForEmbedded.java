@@ -211,7 +211,7 @@ public class uploadImageForEmbedded {
         ArrayList<String> exceptionMessage = new ArrayList<>();
         final Optional<tempTable> retrieveTempData = tempRepository.findByUserId(id);
 
-        if(retrieveTempData.isPresent()){
+        if(!retrieveTempData.isPresent()){
             jsonOutPut.put("status","f");
             errorMessage.add("Error Code 106. Fail to confirm embedded image");
         }
